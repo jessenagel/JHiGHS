@@ -232,20 +232,20 @@ bool validateNonNegativeIndex(JNIEnv* env, int index, const char* context) {
 // ============================================================================
 
 void logInfo(const char* message) {
-    std::cout << "[HiGHS-Java INFO] " << message << std::endl;
+    std::cout << "[jhighs INFO] " << message << std::endl;
 }
 
 void logWarning(const char* message) {
-    std::cerr << "[HiGHS-Java WARNING] " << message << std::endl;
+    std::cerr << "[jhighs WARNING] " << message << std::endl;
 }
 
 void logError(const char* message) {
-    std::cerr << "[HiGHS-Java ERROR] " << message << std::endl;
+    std::cerr << "[jhighs ERROR] " << message << std::endl;
 }
 
 void logDebug(const char* message) {
     #ifdef DEBUG
-    std::cout << "[HiGHS-Java DEBUG] " << message << std::endl;
+    std::cout << "[jhighs DEBUG] " << message << std::endl;
     #endif
 }
 
