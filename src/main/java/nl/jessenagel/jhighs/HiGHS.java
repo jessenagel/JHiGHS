@@ -1,57 +1,6 @@
 package nl.jessenagel.jhighs;
 
-// Status enums
-enum HighsStatus {
-    kOk(0),
-    kWarning(1),
-    kError(-1);
 
-    private final int value;
-
-    HighsStatus(int value) {
-        this.value = value;
-    }
-
-    public static HighsStatus fromInt(int value) {
-        for (HighsStatus status : values()) {
-            if (status.value == value) return status;
-        }
-        throw new IllegalArgumentException("Unknown status: " + value);
-    }
-}
-
-
-enum ModelStatus {
-    kNotset(0),
-    kLoadError(1),
-    kModelError(2),
-    kPresolveError(3),
-    kSolveError(4),
-    kPostsolveError(5),
-    kModelEmpty(6),
-    kOptimal(7),
-    kInfeasible(8),
-    kUnboundedOrInfeasible(9),
-    kUnbounded(10),
-    kObjectiveBound(11),
-    kObjectiveTarget(12),
-    kTimeLimit(13),
-    kIterationLimit(14),
-    kUnknown(15);
-
-    private final int value;
-
-    ModelStatus(int value) {
-        this.value = value;
-    }
-
-    public static ModelStatus fromInt(int value) {
-        for (ModelStatus status : values()) {
-            if (status.value == value) return status;
-        }
-        throw new IllegalArgumentException("Unknown model status: " + value);
-    }
-}
 
 // Main Java wrapper class for HiGHS solver
 public class HiGHS {
@@ -100,6 +49,7 @@ public class HiGHS {
 
     private native int changeVariableBounds(long solverPtr, int col, double lower, double upper);
 
+    private native int changeColIntegrality(long solverPtr, int col, int type);
 
     // ===== Constraint Manipulation =====
     private native int deleteConstraint(long solverPtr, int row);
@@ -212,7 +162,14 @@ public class HiGHS {
         return HighsStatus.fromInt(status);
     }
 
-
+    public HighsStatus changeColIntegrality(int colIndex, VarType varType) {
+        if (!initialized) throw new IllegalStateException("Solver not initialized");
+        if (varType == null) {
+            throw new IllegalArgumentException("Variable type cannot be null");
+        }
+        int status = changeColIntegrality(solverHandle, colIndex, varType.getValue());
+        return HighsStatus.fromInt(status);
+    }
 
     // ===== Constraint Management ====
     public HighsStatus addConstraint(double[] coefficients, int[] variableIndices,
@@ -254,7 +211,7 @@ public class HiGHS {
         return new Solution(values, objective);
     }
 
-//    public double[] getReducedCosts() {
+    //    public double[] getReducedCosts() {
 //        if (!initialized) throw new IllegalStateException("Solver not initialized");
 //
 //        // Get dimension
@@ -330,8 +287,57 @@ public class HiGHS {
     }
 
 }
+// Status enums
+enum HighsStatus {
+    kOk(0),
+    kWarning(1),
+    kError(-1);
 
-// Solution container class
+    private final int value;
+
+    HighsStatus(int value) {
+        this.value = value;
+    }
+
+    public static HighsStatus fromInt(int value) {
+        for (HighsStatus status : values()) {
+            if (status.value == value) return status;
+        }
+        throw new IllegalArgumentException("Unknown status: " + value);
+    }
+}
+
+enum ModelStatus {
+    kNotset(0),
+    kLoadError(1),
+    kModelError(2),
+    kPresolveError(3),
+    kSolveError(4),
+    kPostsolveError(5),
+    kModelEmpty(6),
+    kOptimal(7),
+    kInfeasible(8),
+    kUnboundedOrInfeasible(9),
+    kUnbounded(10),
+    kObjectiveBound(11),
+    kObjectiveTarget(12),
+    kTimeLimit(13),
+    kIterationLimit(14),
+    kUnknown(15);
+
+    private final int value;
+
+    ModelStatus(int value) {
+        this.value = value;
+    }
+
+    public static ModelStatus fromInt(int value) {
+        for (ModelStatus status : values()) {
+            if (status.value == value) return status;
+        }
+        throw new IllegalArgumentException("Unknown model status: " + value);
+    }
+}
 class Solution {
     private final double[] variableValues;
     private final double objectiveValue;
@@ -357,29 +363,28 @@ class Solution {
         return variableValues.length;
     }
 }
+enum VarType {
+    kContinuous(0),
+    kInteger(1),
+    kSemiContinuous(2),
+    kSemiInteger(3),
+    kSemiSemiInteger(4),
+    kBinary(5);
 
-class Basis {
-    private final int[] columnStatus;
-    private final int[] rowStatus;
+    private final int value;
 
-    public Basis(int[] columnStatus, int[] rowStatus) {
-        this.columnStatus = columnStatus.clone();
-        this.rowStatus = rowStatus.clone();
+    VarType(int value) {
+        this.value = value;
     }
 
-    public int[] getColumnStatus() {
-        return columnStatus.clone();
+    public static VarType fromInt(int value) {
+        for (VarType type : values()) {
+            if (type.value == value) return type;
+        }
+        throw new IllegalArgumentException("Unknown variable type: " + value);
     }
 
-    public int[] getRowStatus() {
-        return rowStatus.clone();
-    }
-
-    public int getColumnStatus(int index) {
-        return columnStatus[index];
-    }
-
-    public int getRowStatus(int index) {
-        return rowStatus[index];
+    public int getValue() {
+        return value;
     }
 }

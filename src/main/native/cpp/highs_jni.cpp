@@ -171,7 +171,23 @@ Java_nl_jessenagel_jhighs_HiGHS_changeVariableBounds(JNIEnv* env, jobject obj, j
     return static_cast<jint>(status);
 }
 
-
+JNIEXPORT jint JNICALL
+Java_nl_jessenagel_jhighs_HiGHS_changeColIntegrality(JNIEnv* env, jobject obj, jlong solverPtr,
+                        jint variableIndex, jint varTypeInt) {
+    if (solverPtr == 0) return -1;
+    HighsVarType varType = HighsVarType::kContinuous;
+    switch (varTypeInt) {
+        case 0: varType = HighsVarType::kContinuous; break;
+        case 1: varType = HighsVarType::kInteger; break;
+        case 2: varType = HighsVarType::kSemiContinuous; break;
+        case 3: varType = HighsVarType::kSemiInteger; break;
+        case 4: varType = HighsVarType::kImplicitInteger; break;
+        default: return -1; // Invalid type
+    }
+    Highs* solver = reinterpret_cast<Highs*>(solverPtr);
+    HighsStatus status = solver->changeColIntegrality(variableIndex, varType);
+    return static_cast<jint>(status);
+}
 
 // Constraint Manipulation Functions
 
