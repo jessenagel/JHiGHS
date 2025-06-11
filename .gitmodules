@@ -1,0 +1,3 @@
+[submodule "src/main/native/third-party/HiGHS"]
+	path = src/main/native/third-party/HiGHS
+	url = https://github.com/ERGO-Code/HiGHS
