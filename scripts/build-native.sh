@@ -8,7 +8,6 @@ BUILD_DIR="$PROJECT_ROOT/build"
 # Determine platform
 OS=$(uname -s)
 ARCH=$(uname -m)
-
 case "$OS" in
     Linux*)
         PLATFORM="linux-x86_64"
@@ -40,7 +39,7 @@ cmake -DCMAKE_BUILD_TYPE=Release "$PROJECT_ROOT"
 make -j$(nproc || sysctl -n hw.ncpu || echo 4)
 
 echo "Building native library..."
-
+echo "$PWD"
 # Generate JNI headers
 javac -h . -cp "$PROJECT_ROOT/src/main/java" \
   "$PROJECT_ROOT/src/main/java/nl/jessenagel/jhighs/HiGHS.java" \
@@ -58,6 +57,7 @@ mkdir -p "$OUTPUT_DIR"
 case "$PLATFORM" in
     linux-*)
         echo "Compiling for Linux..."
+        echo "Project root: $PROJECT_ROOT"
         g++ -shared -fPIC \
             -I${JAVA_HOME}/include -I${JAVA_HOME}/include/linux \
             -I"$PROJECT_ROOT/src/main/native/third-party/HiGHS/highs" \
@@ -65,7 +65,7 @@ case "$PLATFORM" in
             -L"$PROJECT_ROOT/build/lib64" \
             -lhighs "$PROJECT_ROOT/src/main/native/cpp/highs_jni.cpp" \
             -o libhighs_jni.so
-
+        echo "Compilation complete."
         # Copy JNI library
         cp libhighs_jni.so "$OUTPUT_DIR/"
 

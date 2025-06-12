@@ -20,16 +20,10 @@ jobs:
       - uses: actions/checkout@v4
         with:
             submodules: 'true'
-      - name: Build HiGHS library
+      - name: Download Maven
         run: |
-          git clone https://github.com/ERGO-Code/HiGHS.git
-          cd HiGHS
-          mkdir build
-          cd build
-          cmake ..
-          make -j4
-          sudo make install
-          sudo ldconfig
+          sudo apt-get update
+          sudo apt-get install maven build-essential cmake -y
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
@@ -37,4 +31,6 @@ jobs:
           distribution: 'temurin'
       - name: Build with Maven
         run: |
+          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GITHUB_WORKSPACE/build/lib64 
+          export LIBRARY_PATH=$LIBRARY_PATH:$GITHUB_WORKSPACE/build/lib64
           mvn -B package --file pom.xml
