@@ -1,11 +1,14 @@
 package nl.jessenagel.jhighs;
 
+import org.slf4j.LoggerFactory;
+
 import java.io.*;
 import java.nio.file.*;
 import java.util.logging.Logger;
 
 public class NativeLibraryLoader {
     private static final Logger logger = Logger.getLogger(NativeLibraryLoader.class.getName());
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(NativeLibraryLoader.class);
     private static boolean librariesLoaded = false;
 
     public static synchronized void loadNativeLibraries() {
@@ -20,10 +23,11 @@ public class NativeLibraryLoader {
             // Create temporary directory for extracted libraries
             Path tempDir = Files.createTempDirectory("jhighs_natives");
             tempDir.toFile().deleteOnExit();
-
+            logger.info("Temporary directory created for native libraries: " + tempDir.toAbsolutePath());
             // Extract and load libraries in correct order
             for (String libName : libraryNames) {
                 String resourcePath = "/natives/" + platform + "/" + libName;
+                logger.info("Loading native library: " + resourcePath);
                 extractAndLoadLibrary(resourcePath, tempDir, libName);
             }
 
