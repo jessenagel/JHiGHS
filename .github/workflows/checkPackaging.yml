@@ -14,7 +14,6 @@ on: pull_request
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -27,4 +26,7 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
       - name: Build with Maven
-        run: mvn -B package --file pom.xml
+        run: |
+          export LIBRARY_PATH=/path/to/highs/lib:$LIBRARY_PATH
+          export LD_LIBRARY_PATH=/path/to/highs/lib:$LD_LIBRARY_PATH
+          mvn -B package --file pom.xml
