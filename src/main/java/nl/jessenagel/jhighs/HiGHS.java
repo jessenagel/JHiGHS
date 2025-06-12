@@ -7,7 +7,11 @@ public class HiGHS {
 
     // Load native library (HiGHS C++ compiled as JNI)
     static {
-        System.loadLibrary("highs_jni");
+        try {
+            NativeLibraryLoader.loadNativeLibraries();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to initialize HiGHS native libraries", e);
+        }
     }
 
     // Instance variables
@@ -287,104 +291,4 @@ public class HiGHS {
     }
 
 }
-// Status enums
-enum HighsStatus {
-    kOk(0),
-    kWarning(1),
-    kError(-1);
 
-    private final int value;
-
-    HighsStatus(int value) {
-        this.value = value;
-    }
-
-    public static HighsStatus fromInt(int value) {
-        for (HighsStatus status : values()) {
-            if (status.value == value) return status;
-        }
-        throw new IllegalArgumentException("Unknown status: " + value);
-    }
-}
-
-enum ModelStatus {
-    kNotset(0),
-    kLoadError(1),
-    kModelError(2),
-    kPresolveError(3),
-    kSolveError(4),
-    kPostsolveError(5),
-    kModelEmpty(6),
-    kOptimal(7),
-    kInfeasible(8),
-    kUnboundedOrInfeasible(9),
-    kUnbounded(10),
-    kObjectiveBound(11),
-    kObjectiveTarget(12),
-    kTimeLimit(13),
-    kIterationLimit(14),
-    kUnknown(15);
-
-    private final int value;
-
-    ModelStatus(int value) {
-        this.value = value;
-    }
-
-    public static ModelStatus fromInt(int value) {
-        for (ModelStatus status : values()) {
-            if (status.value == value) return status;
-        }
-        throw new IllegalArgumentException("Unknown model status: " + value);
-    }
-}
-class Solution {
-    private final double[] variableValues;
-    private final double objectiveValue;
-
-    public Solution(double[] variableValues, double objectiveValue) {
-        this.variableValues = variableValues.clone();
-        this.objectiveValue = objectiveValue;
-    }
-
-    public double[] getVariableValues() {
-        return variableValues.clone();
-    }
-
-    public double getVariableValue(int index) {
-        return variableValues[index];
-    }
-
-    public double getObjectiveValue() {
-        return objectiveValue;
-    }
-
-    public int getNumVariables() {
-        return variableValues.length;
-    }
-}
-enum VarType {
-    kContinuous(0),
-    kInteger(1),
-    kSemiContinuous(2),
-    kSemiInteger(3),
-    kSemiSemiInteger(4),
-    kBinary(5);
-
-    private final int value;
-
-    VarType(int value) {
-        this.value = value;
-    }
-
-    public static VarType fromInt(int value) {
-        for (VarType type : values()) {
-            if (type.value == value) return type;
-        }
-        throw new IllegalArgumentException("Unknown variable type: " + value);
-    }
-
-    public int getValue() {
-        return value;
-    }
-}
