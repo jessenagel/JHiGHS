@@ -59,7 +59,11 @@ case "$PLATFORM" in
         echo "Compiling for Linux..."
         echo "Project root: $PROJECT_ROOT"
         ls "$PROJECT_ROOT"
+        echo "---"
         ls "$PROJECT_ROOT/build"
+        echo "---"
+        ls "$PROJECT_ROOT/build/lib"
+        echo "---"
         ls "$PROJECT_ROOT/build/lib64"
         g++ -shared -fPIC \
             -I${JAVA_HOME}/include -I${JAVA_HOME}/include/linux \
