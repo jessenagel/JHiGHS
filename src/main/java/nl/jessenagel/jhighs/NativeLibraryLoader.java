@@ -70,6 +70,7 @@ public class NativeLibraryLoader {
             }
 
             Path libFile = tempDir.resolve(libName);
+            System.out.println("Extracting native library: " + libFile);
             Files.copy(is, libFile, StandardCopyOption.REPLACE_EXISTING);
 
             // Make executable on Unix systems
