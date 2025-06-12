@@ -5,9 +5,7 @@ public enum VarType {
     kInteger(1),
     kSemiContinuous(2),
     kSemiInteger(3),
-    kSemiSemiInteger(4),
-    kBinary(5);
-
+    kSemiSemiInteger(4);
     private final int value;
 
     VarType(int value) {
