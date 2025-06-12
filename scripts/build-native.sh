@@ -70,6 +70,7 @@ case "$PLATFORM" in
             -I"$PROJECT_ROOT/src/main/native/third-party/HiGHS/highs" \
             -I"$PROJECT_ROOT/build/src/main/native/third-party/HiGHS" \
             -L"$PROJECT_ROOT/build/lib64" \
+            -L"$PROJECT_ROOT/build/lib" \
             -lhighs "$PROJECT_ROOT/src/main/native/cpp/highs_jni.cpp" \
             -o libhighs_jni.so
         echo "Compilation complete."
