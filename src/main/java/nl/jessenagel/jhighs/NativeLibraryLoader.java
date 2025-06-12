@@ -1,14 +1,10 @@
 package nl.jessenagel.jhighs;
 
-import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.file.*;
-import java.util.logging.Logger;
 
 public class NativeLibraryLoader {
-    private static final Logger logger = Logger.getLogger(NativeLibraryLoader.class.getName());
-    private static final org.slf4j.Logger log = LoggerFactory.getLogger(NativeLibraryLoader.class);
     private static boolean librariesLoaded = false;
 
     public static synchronized void loadNativeLibraries() {
@@ -23,16 +19,16 @@ public class NativeLibraryLoader {
             // Create temporary directory for extracted libraries
             Path tempDir = Files.createTempDirectory("jhighs_natives");
             tempDir.toFile().deleteOnExit();
-            logger.info("Temporary directory created for native libraries: " + tempDir.toAbsolutePath());
+            System.out.println("Temporary directory created for native libraries: " + tempDir.toAbsolutePath());
             // Extract and load libraries in correct order
             for (String libName : libraryNames) {
                 String resourcePath = "/natives/" + platform + "/" + libName;
-                logger.info("Loading native library: " + resourcePath);
+                System.out.println("Loading native library: " + resourcePath);
                 extractAndLoadLibrary(resourcePath, tempDir, libName);
             }
 
             librariesLoaded = true;
-            logger.info("Native libraries loaded successfully for platform: " + platform);
+            System.out.println("Native libraries loaded successfully for platform: " + platform);
 
         } catch (Exception e) {
             throw new RuntimeException("Failed to load native libraries", e);
@@ -83,7 +79,7 @@ public class NativeLibraryLoader {
 
             // Load the library
             System.load(libFile.toAbsolutePath().toString());
-            logger.info("Loaded native library: " + libName);
+            System.out.println("Loaded native library: " + libName);
         }
     }
 }
