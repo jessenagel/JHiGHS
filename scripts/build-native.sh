@@ -8,7 +8,6 @@ BUILD_DIR="$PROJECT_ROOT/build"
 # Determine platform
 OS=$(uname -s)
 ARCH=$(uname -m)
-
 case "$OS" in
     Linux*)
         PLATFORM="linux-x86_64"
@@ -40,7 +39,7 @@ cmake -DCMAKE_BUILD_TYPE=Release "$PROJECT_ROOT"
 make -j$(nproc || sysctl -n hw.ncpu || echo 4)
 
 echo "Building native library..."
-
+echo "$PWD"
 # Generate JNI headers
 javac -h . -cp "$PROJECT_ROOT/src/main/java" \
   "$PROJECT_ROOT/src/main/java/nl/jessenagel/jhighs/HiGHS.java" \
@@ -53,27 +52,43 @@ echo "JNI headers generated successfully."
 # Create output directory
 OUTPUT_DIR="$PROJECT_ROOT/src/main/resources/natives/$PLATFORM"
 mkdir -p "$OUTPUT_DIR"
-
+echo "Output directory created: $OUTPUT_DIR"
 # Platform-specific compilation and copying
 case "$PLATFORM" in
     linux-*)
         echo "Compiling for Linux..."
+        # Compile the JNI library
         g++ -shared -fPIC \
             -I${JAVA_HOME}/include -I${JAVA_HOME}/include/linux \
             -I"$PROJECT_ROOT/src/main/native/third-party/HiGHS/highs" \
             -I"$PROJECT_ROOT/build/src/main/native/third-party/HiGHS" \
             -L"$PROJECT_ROOT/build/lib64" \
-            -lhighs "$PROJECT_ROOT/src/main/native/cpp/highs_jni.cpp" \
+            -L"$PROJECT_ROOT/build/lib" \
+            -lhighs \
+            "$PROJECT_ROOT/src/main/native/cpp/highs_jni.cpp" \
             -o libhighs_jni.so
-
+        echo "Compilation complete."
         # Copy JNI library
         cp libhighs_jni.so "$OUTPUT_DIR/"
+
 
         # Copy HiGHS libraries
         if [[ -f "$PROJECT_ROOT/build/lib64/libhighs.so" ]]; then
             cp "$PROJECT_ROOT/build/lib64/libhighs.so" "$OUTPUT_DIR/"
         elif [[ -f "$PROJECT_ROOT/build/lib/libhighs.so" ]]; then
             cp "$PROJECT_ROOT/build/lib/libhighs.so" "$OUTPUT_DIR/"
+        fi
+
+        if [[ -f "$PROJECT_ROOT/build/lib64/libhighs.so.1" ]]; then
+            cp "$PROJECT_ROOT/build/lib64/libhighs.so.1" "$OUTPUT_DIR/"
+        elif [[ -f "$PROJECT_ROOT/build/lib/libhighs.so.1" ]]; then
+            cp "$PROJECT_ROOT/build/lib/libhighs.so.1" "$OUTPUT_DIR/"
+        fi
+
+        if [[ -f "$PROJECT_ROOT/build/lib64/libhighs.so.1.11.0" ]]; then
+            cp "$PROJECT_ROOT/build/lib64/libhighs.so.1.11.0" "$OUTPUT_DIR/"
+        elif [[ -f "$PROJECT_ROOT/build/lib/libhighs.so.1.11.0" ]]; then
+            cp "$PROJECT_ROOT/build/lib/libhighs.so.1.11.0" "$OUTPUT_DIR/"
         fi
 
         MAIN_LIB="libhighs_jni.so"
