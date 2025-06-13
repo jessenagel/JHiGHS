@@ -40,9 +40,27 @@ jobs:
         run: |
           find src/main/resources/natives/ -name "*.so" -o -name "*.dylib" -o -name "*.dll" | head -10
           ls -la src/main/resources/natives/linux-x86_64/ || echo "Directory not found"
+          echo "=== Check library dependencies ==="
+          for lib in src/main/resources/natives/linux-x86_64/*.so; do
+            if [ -f "$lib" ]; then
+              echo "Checking $lib:"
+              ldd "$lib" || echo "ldd failed for $lib"
+            fi
+          done
 
+      - name: Debug library loading
+        run: |
+          echo "=== Java Library Path ==="
+          echo $GITHUB_WORKSPACE/src/main/resources/natives/linux-x86_64
+          echo "=== Library contents ==="
+          ls -la $GITHUB_WORKSPACE/src/main/resources/natives/linux-x86_64/
+          echo "=== Test simple library loading ==="
+          cd $GITHUB_WORKSPACE/src/main/resources/natives/linux-x86_64/
+          java -Djava.library.path=. -cp $GITHUB_WORKSPACE/target/classes -c "System.loadLibrary('highs_jni'); System.out.println('Library loaded successfully');" || echo "Direct load failed"
       - name: Package and test
         run: |
           export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GITHUB_WORKSPACE/src/main/resources/natives/linux-x86_64
           export LIBRARY_PATH=$LIBRARY_PATH:$GITHUB_WORKSPACE/src/main/resources/natives/linux-x86_64
+          mvn -B test -Dmaven.surefire.forkCount=0 || echo "No-fork test failed, trying with fork..."
+          # If that fails, try with fork
           mvn -B package --file pom.xml
