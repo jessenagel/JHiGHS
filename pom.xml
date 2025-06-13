@@ -36,43 +36,6 @@
                 </configuration>
             </plugin>
 
-            <!-- Generate JNI headers -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>3.4.1</version>
-                <executions>
-                    <execution>
-                        <id>generate-jni-headers</id>
-                        <phase>process-classes</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <configuration>
-                            <executable>javac</executable>
-                            <arguments>
-                                <argument>-h</argument>
-                                <argument>${project.build.directory}/generated-sources/jni</argument>
-                                <argument>-classpath</argument>
-                                <argument>${project.build.outputDirectory}</argument>
-                                <argument>src/main/java/nl/jessenagel/jhighs/HiGHS.java</argument>
-                            </arguments>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>build-native</id>
-                        <phase>process-classes</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <configuration>
-                            <executable>bash</executable>
-                            <commandlineArgs>${project.basedir}/scripts/build-native.sh</commandlineArgs>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
             <!-- Enhanced Surefire for running tests -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
