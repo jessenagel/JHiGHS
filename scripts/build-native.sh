@@ -69,11 +69,24 @@ case "$PLATFORM" in
         # Copy JNI library
         cp libhighs_jni.so "$OUTPUT_DIR/"
 
+
         # Copy HiGHS libraries
         if [[ -f "$PROJECT_ROOT/build/lib64/libhighs.so" ]]; then
             cp "$PROJECT_ROOT/build/lib64/libhighs.so" "$OUTPUT_DIR/"
         elif [[ -f "$PROJECT_ROOT/build/lib/libhighs.so" ]]; then
             cp "$PROJECT_ROOT/build/lib/libhighs.so" "$OUTPUT_DIR/"
+        fi
+
+        if [[ -f "$PROJECT_ROOT/build/lib64/libhighs.so.1" ]]; then
+            cp "$PROJECT_ROOT/build/lib64/libhighs.so.1" "$OUTPUT_DIR/"
+        elif [[ -f "$PROJECT_ROOT/build/lib/libhighs.so.1" ]]; then
+            cp "$PROJECT_ROOT/build/lib/libhighs.so.1" "$OUTPUT_DIR/"
+        fi
+
+        if [[ -f "$PROJECT_ROOT/build/lib64/libhighs.so.1.11.0" ]]; then
+            cp "$PROJECT_ROOT/build/lib64/libhighs.so.1.11.0" "$OUTPUT_DIR/"
+        elif [[ -f "$PROJECT_ROOT/build/lib/libhighs.so.1.11.0" ]]; then
+            cp "$PROJECT_ROOT/build/lib/libhighs.so.1.11.0" "$OUTPUT_DIR/"
         fi
 
         MAIN_LIB="libhighs_jni.so"
