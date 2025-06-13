@@ -64,6 +64,7 @@ public class NativeLibraryLoader {
     }
 
     private static void extractAndLoadLibrary(String resourcePath, Path tempDir, String libName) throws IOException {
+        System.out.println("Extracting at path: " + resourcePath);
         try (InputStream is = NativeLibraryLoader.class.getResourceAsStream(resourcePath)) {
             if (is == null) {
                 throw new RuntimeException("Native library not found: " + resourcePath);
