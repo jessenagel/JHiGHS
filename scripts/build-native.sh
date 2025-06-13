@@ -52,7 +52,7 @@ echo "JNI headers generated successfully."
 # Create output directory
 OUTPUT_DIR="$PROJECT_ROOT/src/main/resources/natives/$PLATFORM"
 mkdir -p "$OUTPUT_DIR"
-
+echo "Output directory created: $OUTPUT_DIR"
 # Platform-specific compilation and copying
 case "$PLATFORM" in
     linux-*)
