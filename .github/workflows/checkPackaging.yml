@@ -36,6 +36,3 @@ jobs:
           export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GITHUB_WORKSPACE/build/lib
           export LIBRARY_PATH=$LIBRARY_PATH:$GITHUB_WORKSPACE/build/lib
           mvn -B package --file pom.xml
-      - name: Run tests
-        run: |
-          mvn test --file pom.xml
