@@ -1,66 +1,41 @@
+# This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-maven
+
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+# This workflow validates the packaging of the Java project using Maven.
+
 name: Packaging check Maven
 
 on: pull_request
 
+
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
         with:
-          submodules: 'true'
-
-      - name: Install build dependencies
+            submodules: 'true'
+      - name: Set up CMake and maven
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential cmake g++ git
-
+          sudo apt-get install -y cmake maven
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
-
-      - name: Verify submodules
-        run: |
-          git submodule status
-          ls -la src/main/native/third-party/
-
-      - name: Compile classes first (without tests)
-        run: |
-          mvn -B compile -DskipTests
-
       - name: Build native libraries
         run: |
-          chmod +x scripts/build-native.sh
-          ./scripts/build-native.sh
-
-      - name: Verify native libraries were built
+          scripts/build-native.sh
+      - name: Build with Maven
         run: |
-          find src/main/resources/natives/ -name "*.so" -o -name "*.dylib" -o -name "*.dll" | head -10
-          ls -la src/main/resources/natives/linux-x86_64/ || echo "Directory not found"
-          echo "=== Check library dependencies ==="
-          for lib in src/main/resources/natives/linux-x86_64/*.so; do
-            if [ -f "$lib" ]; then
-              echo "Checking $lib:"
-              ldd "$lib" || echo "ldd failed for $lib"
-            fi
-          done
-
-      - name: Debug library loading
-        run: |
-          echo "=== Java Library Path ==="
-          echo $GITHUB_WORKSPACE/src/main/resources/natives/linux-x86_64
-          echo "=== Library contents ==="
-          ls -la $GITHUB_WORKSPACE/src/main/resources/natives/linux-x86_64/
-          echo "=== Test simple library loading ==="
-          cd $GITHUB_WORKSPACE/src/main/resources/natives/linux-x86_64/
-          java -Djava.library.path=. -cp $GITHUB_WORKSPACE/target/classes -c "System.loadLibrary('highs_jni'); System.out.println('Library loaded successfully');" || echo "Direct load failed"
-      - name: Package and test
-        run: |
-          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GITHUB_WORKSPACE/src/main/resources/natives/linux-x86_64
-          export LIBRARY_PATH=$LIBRARY_PATH:$GITHUB_WORKSPACE/src/main/resources/natives/linux-x86_64
-          mvn -B test -Dmaven.surefire.forkCount=0 || echo "No-fork test failed, trying with fork..."
-          # If that fails, try with fork
+          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GITHUB_WORKSPACE/build/lib
+          export LIBRARY_PATH=$LIBRARY_PATH:$GITHUB_WORKSPACE/build/lib
           mvn -B package --file pom.xml
+      - name: Run tests
+        run: |
+          mvn test --file pom.xml

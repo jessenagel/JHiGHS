@@ -50,20 +50,21 @@ javac -h . -cp "$PROJECT_ROOT/src/main/java" \
 echo "JNI headers generated successfully."
 
 # Create output directory
-OUTPUT_DIR="$PROJECT_ROOT/src/main/resources/dnatives/$PLATFORM"
+OUTPUT_DIR="$PROJECT_ROOT/src/main/resources/natives/$PLATFORM"
 mkdir -p "$OUTPUT_DIR"
 echo "Output directory created: $OUTPUT_DIR"
 # Platform-specific compilation and copying
 case "$PLATFORM" in
     linux-*)
         echo "Compiling for Linux..."
-        g++ -shared -fPIC -static-libgcc -static-libstdc++ \
+        # Compile the JNI library
+        g++ -shared -fPIC \
             -I${JAVA_HOME}/include -I${JAVA_HOME}/include/linux \
             -I"$PROJECT_ROOT/src/main/native/third-party/HiGHS/highs" \
             -I"$PROJECT_ROOT/build/src/main/native/third-party/HiGHS" \
             -L"$PROJECT_ROOT/build/lib64" \
             -L"$PROJECT_ROOT/build/lib" \
-            -Wl,-Bstatic -lhighs -Wl,-Bdynamic \
+            -lhighs \
             "$PROJECT_ROOT/src/main/native/cpp/highs_jni.cpp" \
             -o libhighs_jni.so
         echo "Compilation complete."
