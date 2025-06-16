@@ -20,7 +20,6 @@ public class NativeLibraryLoader {
 
                 // Create temporary directory for extracted libraries
                 Path tempDir = Files.createTempDirectory("jhighs_natives");
-                tempDir.toFile();
 
                 // Extract and load libraries in correct order
                 for (String libName : libraryNames) {
