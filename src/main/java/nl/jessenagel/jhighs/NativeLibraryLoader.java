@@ -98,7 +98,7 @@ public class NativeLibraryLoader {
         }
     }
 
-    public class LddRunner {
+    public static class LddRunner {
         public static void runLdd(String libPath) throws IOException, InterruptedException {
             ProcessBuilder pb = new ProcessBuilder("ldd", libPath);
             pb.redirectErrorStream(true);
