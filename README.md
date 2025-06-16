@@ -12,7 +12,7 @@ It does not include advanced features such as presolve, scaling, or advanced out
 - Easy to integrate into Java applications
 - Cross-platform support (Linux, Windows, macOS)
 # Installation
-On Linux, you can simply download the latest .jar file from releases and add it as a dependency in your Java project. For other platforms, you will need to build the library from source.
+On (x86_64) Linux, you can simply download the latest .jar file from releases and add it as a dependency in your Java project. For other platforms, you will need to build the library from source.
 
 # Prerequisites 
 - Java Development Kit (JDK) 
@@ -29,11 +29,16 @@ On Linux, you can simply download the latest .jar file from releases and add it 
    ```bash
    cd JHiGHS
    ```
-3. Package the project using Maven:
+3. Run the build script:
+   ```bash
+   chmod +x ./scripts/build-native.sh
+   ./scripts/build-native.sh
+   ```
+5. Package the project using Maven:
    ```bash
    mvn clean package
    ```
-4. The built JAR file will be located in the `target` directory.
+6. The built JAR file will be located in the `target` directory.
 
 # Usage
 To use JHiGHS in your Java application, include the JAR file in your classpath.
