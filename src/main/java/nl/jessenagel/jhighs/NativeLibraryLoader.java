@@ -40,11 +40,27 @@ public class NativeLibraryLoader {
         String arch = System.getProperty("os.arch").toLowerCase();
 
         if (os.contains("win")) {
-            return "windows-x86_64";
+            if (arch.contains("amd64") || arch.contains("x86_64")) {
+                return "windows-x86_64";
+            } else {
+                throw new RuntimeException("Unsupported architecture on Windows: " + arch);
+            }
         } else if (os.contains("mac") || os.contains("darwin")) {
-            return "darwin-x86_64";
+            if (arch.contains("amd64") || arch.contains("x86_64")) {
+                return "darwin-x86_64";
+            } else if (arch.contains("arm64") || arch.contains("aarch64")) {
+                return "darwin-arm64";
+            } else {
+                throw new RuntimeException("Unsupported architecture on macOS: " + arch);
+            }
         } else if (os.contains("linux")) {
-            return "linux-x86_64";
+            if (arch.contains("amd64") || arch.contains("x86_64")) {
+                return "linux-x86_64";
+            } else if (arch.contains("arm64") || arch.contains("aarch64")) {
+                return "linux-arm64";
+            } else {
+                throw new RuntimeException("Unsupported architecture on Linux: " + arch);
+            }
         } else {
             throw new RuntimeException("Unsupported platform: " + os + " " + arch);
         }
