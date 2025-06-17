@@ -69,7 +69,9 @@ public class NativeLibraryLoader {
     private static String[] getLibraryNames(String platform) {
         switch (platform) {
             case "linux-x86_64":
+            case "linux-arm64":
                 return new String[]{"libhighs.so", "libhighs_jni.so"};
+            case "darwin-arm64":
             case "darwin-x86_64":
                 return new String[]{"libhighs.dylib", "libjhighs.dylib"};
             case "windows-x86_64":
@@ -95,12 +97,6 @@ public class NativeLibraryLoader {
 
             System.out.println("Extracting " + libName + " to " + libFile);
 
-            try {
-                LddRunner.runLdd(libFile.toAbsolutePath().toString());
-            } catch (InterruptedException e) {
-                // Just log this, don't fail
-                System.err.println("LDD check interrupted: " + e.getMessage());
-            }
 
             // If this is the first library (libhighs.so), set LD_LIBRARY_PATH to include temp directory
             if (libName.equals("libhighs.so")) {
@@ -113,21 +109,4 @@ public class NativeLibraryLoader {
         }
     }
 
-    public static class LddRunner {
-        public static void runLdd(String libPath) throws IOException, InterruptedException {
-            ProcessBuilder pb = new ProcessBuilder("ldd", libPath);
-            pb.redirectErrorStream(true);
-            Process process = pb.start();
-
-            try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(process.getInputStream()))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    System.out.println(line);
-                }
-            }
-            int exitCode = process.waitFor();
-            System.out.println("ldd exited with code: " + exitCode);
-        }
-    }
 }
