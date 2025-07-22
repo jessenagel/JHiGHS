@@ -21,22 +21,50 @@ target_include_directories(jhighs PRIVATE
     ${CMAKE_SOURCE_DIR}/src/main/native/third-party/HiGHS/highs
 )
 
-target_link_libraries(jhighs
-    highs
-    ${JNI_LIBRARIES}
-)
+# Platform-specific linking
+if(APPLE)
+    # On modern macOS, don't link JavaVM framework - JNI symbols are resolved at runtime
+    target_link_libraries(jhighs
+        highs
+    )
+    # Set proper linking flags for macOS
+    set_target_properties(jhighs PROPERTIES
+        LINK_FLAGS "-undefined dynamic_lookup"
+    )
+else()
+    # On other platforms, use regular JNI libraries
+    target_link_libraries(jhighs
+        highs
+        ${JNI_LIBRARIES}
+    )
+endif()
 
-# Set output directory based on platform
+message(STATUS "JNI_LIBRARIES: ${JNI_LIBRARIES}")
+
+# Determine architecture
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "^(aarch64|arm64)$")
+    set(ARCH_NAME "arm64")
+elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "^(x86_64|amd64)$")
+    set(ARCH_NAME "x86_64")
+elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "^(armv7l)$")
+    set(ARCH_NAME "armv7")
+elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "^(i386|i686)$")
+    set(ARCH_NAME "x86")
+else()
+    set(ARCH_NAME ${CMAKE_SYSTEM_PROCESSOR})
+endif()
+
+# Set output directory based on platform and architecture
 if(WIN32)
     set_target_properties(jhighs PROPERTIES
-        LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/src/main/resources/natives/windows-x86_64
+        LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/src/main/resources/natives/windows-${ARCH_NAME}
     )
 elseif(APPLE)
     set_target_properties(jhighs PROPERTIES
-        LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/src/main/resources/natives/darwin-x86_64
+        LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/src/main/resources/natives/darwin-${ARCH_NAME}
     )
 else()
     set_target_properties(jhighs PROPERTIES
-        LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/src/main/resources/natives/linux-x86_64
+        LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/src/main/resources/natives/linux-${ARCH_NAME}
     )
 endif()
