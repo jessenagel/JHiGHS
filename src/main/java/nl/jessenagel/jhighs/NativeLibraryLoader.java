@@ -69,7 +69,7 @@ public class NativeLibraryLoader {
     private static String[] getLibraryNames(String platform) {
         switch (platform) {
             case "linux-x86_64":
-                return new String[]{"libhighs.so", "libhighs_jni.so"};
+                return new String[]{"libhighs.so", "libjhighs.so"};
             case "darwin-x86_64":
                 return new String[]{"libhighs.dylib", "libjhighs.dylib"};
             case "windows-x86_64":
