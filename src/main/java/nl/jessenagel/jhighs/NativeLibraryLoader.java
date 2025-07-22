@@ -70,7 +70,7 @@ public class NativeLibraryLoader {
         switch (platform) {
             case "linux-x86_64":
             case "linux-arm64":
-                return new String[]{"libhighs.so", "libhighs_jni.so"};
+                return new String[]{"libhighs.so", "libjhighs.so"};
             case "darwin-arm64":
             case "darwin-x86_64":
                 return new String[]{"libhighs.dylib", "libjhighs.dylib"};
