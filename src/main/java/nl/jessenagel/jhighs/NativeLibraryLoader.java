@@ -6,6 +6,7 @@ import java.nio.file.*;
 
 public class NativeLibraryLoader {
     private static boolean librariesLoaded = false;
+    private static Path tempDir = null;
 
     public static synchronized void loadNativeLibraries() {
         if (librariesLoaded) {
@@ -19,7 +20,10 @@ public class NativeLibraryLoader {
                 String[] libraryNames = getLibraryNames(platform);
 
                 // Create temporary directory for extracted libraries
-                Path tempDir = Files.createTempDirectory("jhighs_natives");
+                tempDir = Files.createTempDirectory("jhighs_natives");
+
+                // Register shutdown hook to clean up
+                Runtime.getRuntime().addShutdownHook(new Thread(NativeLibraryLoader::cleanupTempDirectory));
 
                 // Extract and load libraries in correct order
                 for (String libName : libraryNames) {
@@ -67,17 +71,30 @@ public class NativeLibraryLoader {
     }
 
     private static String[] getLibraryNames(String platform) {
-        switch (platform) {
-            case "linux-x86_64":
-            case "linux-arm64":
-                return new String[]{"libhighs.so", "libjhighs.so"};
-            case "darwin-arm64":
-            case "darwin-x86_64":
-                return new String[]{"libhighs.dylib", "libjhighs.dylib"};
-            case "windows-x86_64":
-                return new String[]{"highs.dll", "jhighs.dll"};
-            default:
-                throw new RuntimeException("Unsupported platform: " + platform);
+        return switch (platform) {
+            case "linux-x86_64", "linux-arm64" -> new String[]{"libhighs.so", "libjhighs.so"};
+            case "darwin-arm64", "darwin-x86_64" -> new String[]{"libhighs.dylib", "libjhighs.dylib"};
+            case "windows-x86_64" -> new String[]{"highs.dll", "jhighs.dll"};
+            default -> throw new RuntimeException("Unsupported platform: " + platform);
+        };
+    }
+
+    private static void cleanupTempDirectory() {
+        if (tempDir != null) {
+            try {
+                Files.walk(tempDir)
+                        .sorted((p1, p2) -> -p1.compareTo(p2)) // Reverse order to delete files before directories
+                        .forEach(path -> {
+                            try {
+                                Files.delete(path);
+                            } catch (IOException e) {
+                                System.err.println("Failed to delete: " + path + ": " + e.getMessage());
+                            }
+                        });
+                System.out.println("Cleaned up temporary directory: " + tempDir);
+            } catch (IOException e) {
+                System.err.println("Failed to clean up temporary directory: " + e.getMessage());
+            }
         }
     }
 
@@ -100,7 +117,7 @@ public class NativeLibraryLoader {
 
             // If this is the first library (libhighs.so), set LD_LIBRARY_PATH to include temp directory
             if (libName.equals("libhighs.so")) {
-                System.setProperty("java.library.path", tempDir.toString() +
+                System.setProperty("java.library.path", tempDir +
                         ":" + System.getProperty("java.library.path"));
             }
 
